@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#fafafa;font-family:'IBM Plex Sans',sans-serif;color:#141414;}
+a{color:#ea5906;text-decoration:none;}
+a:hover{color:#c74c05;}
+</style>
+<script src="products-data.js"></script>
+<script src="cart-store.js"></script>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column;">
+
+<header style="position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid #e6e2df;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:72px;">
+  <a href="index.html" data-testid="nav-logo" style="display:flex;align-items:center;gap:10px;color:#141414;">
+    <img src="assets/wdio-logo.svg" alt="WDIO" style="width:26px;height:26px;" />
+    <span style="font-weight:700;font-size:18px;">WDIO <span style="color:#ea5906;">Gear</span></span>
+  </a>
+  <nav style="display:flex;gap:30px;font-size:15px;font-weight:500;">
+    <a href="index.html" data-testid="nav-home" style="color:#141414;">Home</a>
+    <a href="Products.dc.html" data-testid="nav-shop" style="color:#ea5906;">Shop</a>
+    <a href="Cart.dc.html" data-testid="nav-cart" style="color:#141414;">Cart</a>
+    <a href="Account.dc.html" data-testid="nav-account" style="color:#141414;">Account</a>
+  </nav>
+  <a href="Cart.dc.html" aria-label="Cart" data-testid="cart-icon" style="position:relative;color:#141414;font-size:20px;">🛒<span data-testid="cart-count" style="position:absolute;top:-8px;right:-10px;background:#ea5906;color:#fff;font-size:11px;font-weight:700;border-radius:10px;padding:1px 6px;">{{ cartCount }}</span></a>
+</header>
+
+<div style="max-width:1160px;margin:0 auto;width:100%;box-sizing:border-box;padding:32px 60px 70px;">
+
+  <div style="font-size:13px;color:#8a8a8a;margin-bottom:24px;">
+    <a href="index.html" style="color:#8a8a8a;">Home</a> /
+    <a href="Products.dc.html" style="color:#8a8a8a;">Shop</a> /
+    <a href="{{ categoryHref }}" style="color:#8a8a8a;">{{ product.category }}</a> /
+    <span style="color:#141414;">{{ product.name }}</span>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:56px;margin-bottom:60px;">
+    <div>
+      <div style="aspect-ratio:1/1;border-radius:14px;border:1px solid #e6e2df;margin-bottom:14px;overflow:hidden;">
+        <img src="{{ product.imageDetail }}" alt="{{ product.name }}" data-testid="product-image" style="width:100%;height:100%;object-fit:cover;display:block;" />
+      </div>
+      <div style="display:flex;gap:10px;">
+        <sc-for list="{{ thumbs }}" as="t" hint-placeholder-count="4">
+          <button onclick="{{ t.select }}" aria-label="{{ t.label }}" data-testid="{{ t.testId }}" style="width:64px;height:64px;border-radius:8px;border:2px solid {{ t.borderColor }};background:#f4efe9;cursor:pointer;padding:0;overflow:hidden;">
+            <img src="{{ t.image }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;" />
+          </button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div>
+      <h1 style="font-size:26px;font-weight:700;margin:0 0 8px;color:#000;">{{ product.name }}</h1>
+      <div style="font-size:13px;color:#8a8a8a;margin-bottom:16px;">★ {{ product.ratingLabel }} · {{ product.reviews }} reviews</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;color:#ea5906;margin-bottom:20px;">{{ product.priceLabel }}</div>
+      <p style="font-size:15px;line-height:1.65;color:#4a4a4a;margin:0 0 26px;max-width:440px;">{{ product.blurb }}</p>
+
+      <div style="margin-bottom:22px;">
+        <div style="font-size:13px;font-weight:700;color:#000;margin-bottom:10px;">Color: {{ selectedColor }}</div>
+        <div style="display:flex;gap:10px;">
+          <sc-for list="{{ colorOptions }}" as="c" hint-placeholder-count="3">
+            <button onclick="{{ c.select }}" aria-label="{{ c.name }}" data-testid="{{ c.testId }}" style="width:30px;height:30px;border-radius:50%;background:{{ c.swatch }};border:2px solid {{ c.borderColor }};cursor:pointer;padding:0;"></button>
+          </sc-for>
+        </div>
+      </div>
+
+      <sc-if value="{{ hasSizes }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-bottom:22px;">
+          <div style="font-size:13px;font-weight:700;color:#000;margin-bottom:10px;">Size</div>
+          <select value="{{ selectedSize }}" onchange="{{ setSize }}" aria-label="Size" data-testid="size-select" style="padding:9px 12px;border-radius:8px;border:1px solid #d8d4d0;font-size:14px;">
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+          </select>
+        </div>
+      </sc-if>
+
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;">
+        <div style="display:flex;align-items:center;border:1px solid #d8d4d0;border-radius:8px;">
+          <button onclick="{{ decQty }}" aria-label="Decrease quantity" data-testid="qty-dec" style="width:36px;height:36px;border:none;background:none;font-size:16px;cursor:pointer;">−</button>
+          <span data-testid="qty-value" style="width:32px;text-align:center;font-size:14px;">{{ qty }}</span>
+          <button onclick="{{ incQty }}" aria-label="Increase quantity" data-testid="qty-inc" style="width:36px;height:36px;border:none;background:none;font-size:16px;cursor:pointer;">+</button>
+        </div>
+        <button onclick="{{ addToCart }}" data-testid="add-to-cart" style="flex:1;background:#141414;color:#fff;font-weight:600;font-size:14px;padding:14px;border:none;border-radius:8px;cursor:pointer;">Add to cart</button>
+        <div style="position:relative;">
+          <span onmouseenter="{{ showTip }}" onmouseleave="{{ hideTip }}" aria-label="Save for later" data-testid="wishlist-toggle" style="font-size:20px;cursor:default;">♡</span>
+          <sc-if value="{{ tipOpen }}" hint-placeholder-val="{{ false }}">
+            <span style="position:absolute;bottom:calc(100% + 6px);right:0;background:#141414;color:#fff;font-size:11px;padding:5px 8px;border-radius:6px;white-space:nowrap;">Save for later</span>
+          </sc-if>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid #e6e2df;">
+        <div style="display:flex;gap:24px;border-bottom:1px solid #e6e2df;">
+          <sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="3">
+            <button onclick="{{ tab.select }}" data-testid="{{ tab.testId }}" style="background:none;border:none;padding:14px 0;font-size:14px;font-weight:600;cursor:pointer;color:{{ tab.color }};border-bottom:2px solid {{ tab.borderColor }};">{{ tab.label }}</button>
+          </sc-for>
+        </div>
+        <div style="padding:20px 0;font-size:14px;line-height:1.7;color:#4a4a4a;">
+          <sc-if value="{{ isDescriptionTab }}" hint-placeholder-val="{{ true }}">
+            <p style="margin:0;">{{ product.blurb }} Made with recycled materials where possible, tested by people who test software for a living.</p>
+          </sc-if>
+          <sc-if value="{{ isSpecsTab }}" hint-placeholder-val="{{ false }}">
+            <ul style="margin:0;padding-left:18px;">
+              <li>Category: {{ product.category }}</li>
+              <li>Available colors: {{ colorList }}</li>
+              <li>Weight: 0.4–1.2 kg depending on variant</li>
+              <li>Warranty: 1 year, demo terms</li>
+            </ul>
+          </sc-if>
+          <sc-if value="{{ isReviewsTab }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0;">{{ product.reviews }} reviews averaging {{ product.ratingLabel }} stars. Review content is illustrative — this is a test fixture, not a live store.</p>
+          </sc-if>
+        </div>
+      </div>
+
+      <div style="margin-top:10px;">
+        <sc-for list="{{ accordionItems }}" as="a" hint-placeholder-count="2">
+          <div style="border-bottom:1px solid #e6e2df;">
+            <button onclick="{{ a.toggle }}" data-testid="{{ a.testId }}" style="width:100%;display:flex;justify-content:space-between;align-items:center;background:none;border:none;padding:14px 0;font-size:14px;font-weight:600;color:#000;cursor:pointer;text-align:left;">
+              {{ a.title }}
+              <span>{{ a.icon }}</span>
+            </button>
+            <sc-if value="{{ a.open }}" hint-placeholder-val="{{ false }}">
+              <p style="margin:0 0 14px;font-size:13px;color:#5a5a5a;line-height:1.6;">{{ a.body }}</p>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <h2 style="font-size:20px;font-weight:700;color:#000;margin:0 0 20px;">You might also like</h2>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;">
+      <sc-for list="{{ related }}" as="r" hint-placeholder-count="4">
+        <a href="{{ r.href }}" data-testid="{{ r.testId }}" style="text-decoration:none;color:#141414;">
+          <div style="aspect-ratio:1/1;border-radius:10px;border:1px solid #e6e2df;overflow:hidden;margin-bottom:10px;">
+            <img src="{{ r.image }}" alt="{{ r.name }}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;" />
+          </div>
+          <div style="font-size:13px;font-weight:600;">{{ r.name }}</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#ea5906;">{{ r.priceLabel }}</div>
+        </a>
+      </sc-for>
+    </div>
+  </div>
+</div>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+  <div data-testid="toast" style="position:fixed;bottom:28px;right:28px;background:#141414;color:#fff;padding:14px 20px;border-radius:10px;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.2);z-index:100;">{{ toast }}</div>
+</sc-if>
+
+<footer style="background:#fff;border-top:1px solid #e6e2df;padding:24px 60px;color:#9a9a9a;font-size:12px;margin-top:auto;">© 2026 WDIO Gear — demo storefront for testing, not a real store.</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      products: [], productId: 1, qty: 1, colorIndex: 0, size: 'M', activeImage: 0,
+      tab: 'description', openAccordion: 'shipping', tipOpen: false, toast: null, cartCount: 0
+    };
+  }
+
+  componentDidMount() {
+    if (window.__wdioCart) {
+      this.setState({ cartCount: window.__wdioCart.count() });
+      this._unsubCart = window.__wdioCart.onChange(() => this.setState({ cartCount: window.__wdioCart.count() }));
+    }
+    const id = Number(new URLSearchParams(window.location.search).get('id')) || 1;
+    const init = (list) => this.setState({ products: list, productId: id });
+    if (window.__wdioProducts) init(window.__wdioProducts);
+    else {
+      this._poll = setInterval(() => {
+        if (window.__wdioProducts) { clearInterval(this._poll); init(window.__wdioProducts); }
+      }, 50);
+    }
+  }
+
+  showToast(msg) {
+    this.setState({ toast: msg });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ toast: null }), 2200);
+  }
+
+  renderVals() {
+    const { products, productId, qty, colorIndex, size, activeImage, tab, openAccordion, tipOpen, toast } = this.state;
+    const slugify = (s) => s.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const product = products.find(p => p.id === productId) || {
+      id: 1, name: 'Loading…', category: '', price: 0, rating: 0, reviews: 0, colors: [], sizes: null, blurb: '', tags: [],
+      imageDetail: '', imageCard: '', imageThumb: ''
+    };
+    const colors = product.colors && product.colors.length ? product.colors : ['Charcoal'];
+    const swatchMap = { Charcoal: '#3a3a3a', Sand: '#d8c7ab', 'Rust Orange': '#ea5906', 'Slate Blue': '#5a6b8c', 'Off-White': '#f0ece5', Forest: '#3f5a44' };
+
+    const related = (products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4))
+      .map(p => ({ name: p.name, priceLabel: '$' + p.price.toFixed(2), href: `Product.dc.html?id=${p.id}`, image: p.imageCard, testId: `related-product-${p.id}` }));
+
+    const accordions = [
+      { key: 'shipping', title: 'Shipping & Returns', body: 'Orders "ship" within 1-2 simulated business days. Returns accepted within 30 days — no real fulfillment happens on this demo site.' },
+      { key: 'faq', title: 'FAQ', body: 'This product page exists to be tested. Every control here — dropdowns, tabs, accordions, tooltips — behaves like a real storefront so automation can target it reliably.' }
+    ];
+
+    return {
+      product: {
+        ...product,
+        priceLabel: '$' + product.price.toFixed(2),
+        ratingLabel: (product.rating || 0).toFixed(1)
+      },
+      categoryHref: `Products.dc.html?category=${encodeURIComponent(product.category)}`,
+      thumbs: [0, 1, 2, 3].map(i => ({
+        image: product.imageThumb,
+        label: `View ${i + 1}`,
+        testId: `product-thumb-${i}`,
+        borderColor: i === activeImage ? '#ea5906' : '#e6e2df',
+        select: () => this.setState({ activeImage: i })
+      })),
+      selectedColor: colors[colorIndex % colors.length],
+      colorOptions: colors.map((c, i) => ({ name: c, swatch: swatchMap[c] || '#ccc', borderColor: i === colorIndex ? '#141414' : '#fff', testId: `color-swatch-${slugify(c)}`, select: () => this.setState({ colorIndex: i }) })),
+      colorList: colors.join(', '),
+      hasSizes: !!product.sizes,
+      selectedSize: size,
+      setSize: (e) => this.setState({ size: e.target.value }),
+      qty,
+      decQty: () => this.setState(s => ({ qty: Math.max(1, s.qty - 1) })),
+      incQty: () => this.setState(s => ({ qty: s.qty + 1 })),
+      addToCart: () => {
+        if (window.__wdioCart) window.__wdioCart.addItem(product.id, colors[colorIndex % colors.length], product.sizes ? size : null, qty);
+        this.showToast(`Added ${qty} × "${product.name}" to cart`);
+      },
+      tipOpen,
+      showTip: () => this.setState({ tipOpen: true }),
+      hideTip: () => this.setState({ tipOpen: false }),
+      tabs: [
+        { key: 'description', label: 'Description' },
+        { key: 'specs', label: 'Specs' },
+        { key: 'reviews', label: 'Reviews' }
+      ].map(t => ({ ...t, testId: `tab-${t.key}`, color: tab === t.key ? '#ea5906' : '#141414', borderColor: tab === t.key ? '#ea5906' : 'transparent', select: () => this.setState({ tab: t.key }) })),
+      isDescriptionTab: tab === 'description',
+      isSpecsTab: tab === 'specs',
+      isReviewsTab: tab === 'reviews',
+      accordionItems: accordions.map(a => ({
+        title: a.title, body: a.body, open: openAccordion === a.key, icon: openAccordion === a.key ? '−' : '+', testId: `accordion-${a.key}`,
+        toggle: () => this.setState(s => ({ openAccordion: s.openAccordion === a.key ? null : a.key }))
+      })),
+      related,
+      toast,
+      cartCount: this.state.cartCount
+    };
+  }
+}
+</script>
+</body>
+</html>

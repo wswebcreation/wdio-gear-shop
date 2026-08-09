@@ -1,0 +1,11 @@
+{
+  "name": "wdio-gear-webshop",
+  "private": true,
+  "description": "WDIO Gear — mocked demo storefront for comparing WebdriverIO and Playwright.",
+  "scripts": {
+    "start": "serve -l 4173"
+  },
+  "dependencies": {
+    "serve": "^14.2.1"
+  }
+}

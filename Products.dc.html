@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#fafafa;font-family:'IBM Plex Sans',sans-serif;color:#141414;}
+a{color:#ea5906;text-decoration:none;}
+a:hover{color:#c74c05;}
+input,select{font-family:'IBM Plex Sans',sans-serif;}
+@keyframes wdio-spin{to{transform:rotate(360deg);}}
+</style>
+<script src="products-data.js"></script>
+<script src="cart-store.js"></script>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column;">
+
+<header style="position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid #e6e2df;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:72px;gap:24px;">
+  <a href="index.html" data-testid="nav-logo" style="display:flex;align-items:center;gap:10px;color:#141414;flex:0 0 auto;">
+    <img src="assets/wdio-logo.svg" alt="WDIO" style="width:26px;height:26px;" />
+    <span style="font-weight:700;font-size:18px;">WDIO <span style="color:#ea5906;">Gear</span></span>
+  </a>
+  <nav style="display:flex;gap:30px;font-size:15px;font-weight:500;flex:0 0 auto;">
+    <a href="index.html" data-testid="nav-home" style="color:#141414;">Home</a>
+    <a href="Products.dc.html" data-testid="nav-shop" style="color:#ea5906;">Shop</a>
+    <a href="Cart.dc.html" data-testid="nav-cart" style="color:#141414;">Cart</a>
+    <a href="Account.dc.html" data-testid="nav-account" style="color:#141414;">Account</a>
+  </nav>
+  <div style="position:relative;flex:1 1 auto;max-width:340px;">
+    <input value="{{ search }}" oninput="{{ setSearch }}" onfocus="{{ openSearch }}" placeholder="Search products…" aria-label="Search products" data-testid="search-input" style="width:100%;box-sizing:border-box;padding:10px 14px;border-radius:20px;border:1px solid #e6e2df;font-size:14px;" />
+    <sc-if value="{{ showSuggestions }}" hint-placeholder-val="{{ false }}">
+      <div data-testid="search-suggestions" style="position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1px solid #e6e2df;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.08);z-index:60;overflow:hidden;">
+        <sc-for list="{{ suggestions }}" as="s" hint-placeholder-count="4">
+          <a href="{{ s.href }}" onclick="{{ closeSearch }}" data-testid="{{ s.testId }}" style="display:flex;justify-content:space-between;padding:10px 14px;font-size:13px;color:#141414;border-bottom:1px solid #f1eee9;">
+            <span>{{ s.name }}</span>
+            <span style="font-family:'IBM Plex Mono',monospace;color:#8a8a8a;">{{ s.priceLabel }}</span>
+          </a>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+  <a href="Cart.dc.html" aria-label="Cart" data-testid="cart-icon" style="position:relative;color:#141414;font-size:20px;flex:0 0 auto;">🛒<span data-testid="cart-count" style="position:absolute;top:-8px;right:-10px;background:#ea5906;color:#fff;font-size:11px;font-weight:700;border-radius:10px;padding:1px 6px;">{{ cartCount }}</span></a>
+</header>
+
+<div style="max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;display:grid;grid-template-columns:240px 1fr;gap:40px;padding:40px 60px;">
+
+  <aside>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <h3 style="font-size:15px;font-weight:700;margin:0;color:#000;">Filters</h3>
+      <button onclick="{{ clearFilters }}" data-testid="clear-filters" style="background:none;border:none;color:#ea5906;font-size:13px;font-weight:600;cursor:pointer;padding:0;">Clear</button>
+    </div>
+    <div style="font-size:13px;font-weight:700;color:#000;margin-bottom:10px;">Category</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:28px;">
+      <sc-for list="{{ categoryOptions }}" as="c" hint-placeholder-count="8">
+        <label style="display:flex;align-items:center;gap:8px;font-size:14px;color:#3a3a3a;cursor:pointer;">
+          <input type="checkbox" checked="{{ c.checked }}" onchange="{{ c.toggle }}" data-testid="{{ c.testId }}" />
+          {{ c.name }}
+        </label>
+      </sc-for>
+    </div>
+    <div style="font-size:13px;font-weight:700;color:#000;margin-bottom:10px;">Max price: {{ maxPriceLabel }}</div>
+    <input type="range" min="15" max="165" step="5" value="{{ maxPrice }}" oninput="{{ setMaxPrice }}" aria-label="Maximum price" data-testid="filter-max-price" style="width:100%;margin-bottom:28px;" />
+    <div style="font-size:13px;font-weight:700;color:#000;margin-bottom:10px;">Sort by</div>
+    <select value="{{ sort }}" onchange="{{ setSort }}" aria-label="Sort by" data-testid="sort-select" style="width:100%;padding:9px 10px;border-radius:8px;border:1px solid #d8d4d0;font-size:14px;">
+      <option value="featured">Featured</option>
+      <option value="price-asc">Price: Low to High</option>
+      <option value="price-desc">Price: High to Low</option>
+      <option value="rating">Top Rated</option>
+    </select>
+  </aside>
+
+  <main>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:20px;">
+      <h1 style="font-size:22px;font-weight:700;margin:0;color:#000;">{{ resultCountLabel }}</h1>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
+      <sc-for list="{{ visibleProducts }}" as="p" hint-placeholder-count="12">
+        <div data-testid="{{ p.testId }}" style="border:1px solid #e6e2df;border-radius:12px;background:#fff;overflow:hidden;display:flex;flex-direction:column;">
+          <a href="{{ p.href }}" style="position:relative;aspect-ratio:1/1;display:block;overflow:hidden;">
+            <img src="{{ p.image }}" alt="{{ p.name }}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;" />
+            <sc-if value="{{ p.badge }}" hint-placeholder-val="{{ false }}">
+              <span style="position:absolute;top:10px;left:10px;background:#ea5906;color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;">{{ p.badge }}</span>
+            </sc-if>
+          </a>
+          <div style="padding:14px;display:flex;flex-direction:column;gap:6px;flex:1;">
+            <div style="display:flex;justify-content:space-between;gap:8px;">
+              <a href="{{ p.href }}" style="color:#141414;font-weight:600;font-size:14px;">{{ p.name }}</a>
+              <div style="position:relative;">
+                <span onmouseenter="{{ p.showTip }}" onmouseleave="{{ hideTip }}" aria-label="Save for later" data-testid="{{ p.wishlistTestId }}" style="cursor:default;font-size:15px;">♡</span>
+                <sc-if value="{{ p.tipOpen }}" hint-placeholder-val="{{ false }}">
+                  <span style="position:absolute;bottom:calc(100% + 6px);right:0;background:#141414;color:#fff;font-size:11px;padding:5px 8px;border-radius:6px;white-space:nowrap;">Save for later</span>
+                </sc-if>
+              </div>
+            </div>
+            <div style="font-size:12px;color:#8a8a8a;">{{ p.category }} · ★ {{ p.ratingLabel }} ({{ p.reviews }})</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+              <span style="font-family:'IBM Plex Mono',monospace;font-weight:600;color:#ea5906;">{{ p.priceLabel }}</span>
+              <button onclick="{{ p.addToCart }}" data-testid="{{ p.addToCartTestId }}" style="background:#141414;color:#fff;border:none;font-size:12px;font-weight:600;padding:8px 12px;border-radius:7px;cursor:pointer;">Add to cart</button>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div ref="{{ sentinelRef }}" data-testid="load-more-sentinel" style="height:40px;display:flex;align-items:center;justify-content:center;margin-top:20px;">
+      <sc-if value="{{ loadingMore }}" hint-placeholder-val="{{ false }}">
+        <div data-testid="load-more-spinner" style="width:22px;height:22px;border-radius:50%;border:3px solid #e6e2df;border-top-color:#ea5906;animation:wdio-spin 0.8s linear infinite;"></div>
+      </sc-if>
+    </div>
+  </main>
+</div>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+  <div data-testid="toast" style="position:fixed;bottom:28px;right:28px;background:#141414;color:#fff;padding:14px 20px;border-radius:10px;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.2);z-index:100;">{{ toast }}</div>
+</sc-if>
+
+<footer style="background:#fff;border-top:1px solid #e6e2df;padding:24px 60px;color:#9a9a9a;font-size:12px;margin-top:auto;">© 2026 WDIO Gear — demo storefront for testing, not a real store.</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.sentinelRef = React.createRef();
+    this.state = {
+      products: [],
+      selectedCategories: [],
+      maxPrice: 165,
+      sort: 'featured',
+      search: '',
+      searchFocused: false,
+      visibleCount: 12,
+      loadingMore: false,
+      toast: null,
+      activeTooltip: null,
+      cartCount: 0
+    };
+  }
+
+  componentDidMount() {
+    if (window.__wdioCart) {
+      this.setState({ cartCount: window.__wdioCart.count() });
+      this._unsubCart = window.__wdioCart.onChange(() => this.setState({ cartCount: window.__wdioCart.count() }));
+    }
+    const init = () => {
+      const params = new URLSearchParams(window.location.search);
+      const cat = params.get('category');
+      this.setState({ products: window.__wdioProducts || [], selectedCategories: cat ? [cat] : [] });
+    };
+    if (window.__wdioProducts) init();
+    else {
+      this._poll = setInterval(() => {
+        if (window.__wdioProducts) { clearInterval(this._poll); init(); }
+      }, 50);
+    }
+
+    this.observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) this.loadMore();
+    }, { threshold: 0.1 });
+    if (this.sentinelRef.current) this.observer.observe(this.sentinelRef.current);
+  }
+
+  loadMore() {
+    const filtered = this.getFiltered();
+    if (this.state.loadingMore || this.state.visibleCount >= filtered.length) return;
+    this.setState({ loadingMore: true });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => {
+      this.setState(s => ({ visibleCount: s.visibleCount + 12, loadingMore: false }));
+    }, 700);
+  }
+
+  getFiltered() {
+    const { products, selectedCategories, maxPrice, sort, search } = this.state;
+    let list = products.filter(p => p.price <= maxPrice);
+    if (selectedCategories.length) list = list.filter(p => selectedCategories.includes(p.category));
+    if (search.trim()) list = list.filter(p => p.name.toLowerCase().includes(search.trim().toLowerCase()));
+    list = list.slice();
+    if (sort === 'price-asc') list.sort((a, b) => a.price - b.price);
+    else if (sort === 'price-desc') list.sort((a, b) => b.price - a.price);
+    else if (sort === 'rating') list.sort((a, b) => b.rating - a.rating);
+    return list;
+  }
+
+  showToast(msg) {
+    this.setState({ toast: msg });
+    clearTimeout(this._toastT);
+    this._toastT = setTimeout(() => this.setState({ toast: null }), 2200);
+  }
+
+  renderVals() {
+    const { products, selectedCategories, maxPrice, sort, search, visibleCount, loadingMore, toast, activeTooltip } = this.state;
+    const slugify = (s) => s.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const CATEGORIES = ["Keyboards","Headphones","Backpacks","Drinkware","Apparel","Desk Accessories","Stickers & Decor","Webcams & Audio"];
+    const categoryOptions = CATEGORIES.map(name => ({
+      name,
+      testId: `filter-category-${slugify(name)}`,
+      checked: selectedCategories.includes(name),
+      toggle: () => this.setState(s => ({
+        selectedCategories: s.selectedCategories.includes(name)
+          ? s.selectedCategories.filter(c => c !== name)
+          : [...s.selectedCategories, name],
+        visibleCount: 12
+      }))
+    }));
+
+    const filtered = this.getFiltered();
+    const visible = filtered.slice(0, visibleCount);
+    const visibleProducts = visible.map(p => ({
+      id: p.id,
+      name: p.name,
+      category: p.category,
+      href: `Product.dc.html?id=${p.id}`,
+      image: p.imageCard,
+      priceLabel: '$' + p.price.toFixed(2),
+      ratingLabel: p.rating.toFixed(1),
+      reviews: p.reviews,
+      badge: p.tags[0] || false,
+      tipOpen: activeTooltip === p.id,
+      showTip: () => this.setState({ activeTooltip: p.id }),
+      testId: `product-card-${p.id}`,
+      addToCartTestId: `add-to-cart-${p.id}`,
+      wishlistTestId: `wishlist-${p.id}`,
+      addToCart: () => {
+        if (window.__wdioCart) window.__wdioCart.addItem(p.id, (p.colors && p.colors[0]) || null, p.sizes ? p.sizes[1] || p.sizes[0] : null, 1);
+        this.showToast(`Added "${p.name}" to cart`);
+      }
+    }));
+
+    const q = search.trim().toLowerCase();
+    const suggestions = q ? products.filter(p => p.name.toLowerCase().includes(q)).slice(0, 6).map(p => ({
+      name: p.name, priceLabel: '$' + p.price.toFixed(2), href: `Product.dc.html?id=${p.id}`, testId: `search-suggestion-${p.id}`
+    })) : [];
+
+    return {
+      categoryOptions,
+      maxPrice,
+      maxPriceLabel: '$' + maxPrice,
+      setMaxPrice: (e) => this.setState({ maxPrice: Number(e.target.value), visibleCount: 12 }),
+      sort,
+      setSort: (e) => this.setState({ sort: e.target.value }),
+      clearFilters: () => this.setState({ selectedCategories: [], maxPrice: 165, sort: 'featured', visibleCount: 12 }),
+      resultCountLabel: `${filtered.length} products`,
+      visibleProducts,
+      sentinelRef: this.sentinelRef,
+      loadingMore,
+      hideTip: () => this.setState({ activeTooltip: null }),
+      search,
+      setSearch: (e) => this.setState({ search: e.target.value }),
+      showSuggestions: !!q && suggestions.length > 0,
+      suggestions,
+      openSearch: () => {},
+      closeSearch: () => this.setState({ search: '' }),
+      toast,
+      cartCount: this.state.cartCount
+    };
+  }
+}
+</script>
+</body>
+</html>

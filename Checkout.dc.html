@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#fafafa;font-family:'IBM Plex Sans',sans-serif;color:#141414;}
+a{color:#ea5906;text-decoration:none;}
+a:hover{color:#c74c05;}
+@keyframes wdio-spin{to{transform:rotate(360deg);}}
+</style>
+<script src="cart-store.js"></script>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column;">
+
+<header style="position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid #e6e2df;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:72px;">
+  <a href="index.html" style="display:flex;align-items:center;gap:10px;color:#141414;">
+    <img src="assets/wdio-logo.svg" alt="WDIO" style="width:26px;height:26px;" />
+    <span style="font-weight:700;font-size:18px;">WDIO <span style="color:#ea5906;">Gear</span></span>
+  </a>
+  <div style="font-size:13px;color:#8a8a8a;">Secure demo checkout — no real payment is processed</div>
+</header>
+
+<div style="max-width:760px;margin:0 auto;width:100%;box-sizing:border-box;padding:40px 40px 90px;">
+  <div style="display:flex;gap:10px;margin-bottom:36px;">
+    <sc-for list="{{ steps }}" as="s" hint-placeholder-count="4">
+      <div style="flex:1;text-align:center;">
+        <div style="height:4px;border-radius:2px;background:{{ s.barColor }};margin-bottom:8px;"></div>
+        <div style="font-size:12px;font-weight:600;color:{{ s.textColor }};">{{ s.label }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <sc-if value="{{ isShipping }}" hint-placeholder-val="{{ true }}">
+    <h2 style="font-size:19px;font-weight:700;color:#000;margin:0 0 20px;">Shipping address</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div style="grid-column:span 2;">
+        <label for="checkout-name" style="font-size:12px;font-weight:600;color:#3a3a3a;">Full name</label>
+        <input id="checkout-name" value="{{ form.name }}" oninput="{{ setField_name }}" data-testid="checkout-name" style="width:100%;box-sizing:border-box;margin-top:6px;padding:11px 12px;border-radius:8px;border:1px solid {{ errBorder.name }};font-size:14px;" />
+        <sc-if value="{{ errors.name }}" hint-placeholder-val="{{ false }}"><div style="color:#e0392b;font-size:12px;margin-top:4px;">{{ errors.name }}</div></sc-if>
+      </div>
+      <div style="grid-column:span 2;">
+        <label for="checkout-email" style="font-size:12px;font-weight:600;color:#3a3a3a;">Email</label>
+        <input id="checkout-email" value="{{ form.email }}" oninput="{{ setField_email }}" data-testid="checkout-email" style="width:100%;box-sizing:border-box;margin-top:6px;padding:11px 12px;border-radius:8px;border:1px solid {{ errBorder.email }};font-size:14px;" />
+        <sc-if value="{{ errors.email }}" hint-placeholder-val="{{ false }}"><div style="color:#e0392b;font-size:12px;margin-top:4px;">{{ errors.email }}</div></sc-if>
+      </div>
+      <div style="grid-column:span 2;">
+        <label for="checkout-address" style="font-size:12px;font-weight:600;color:#3a3a3a;">Street address</label>
+        <input id="checkout-address" value="{{ form.address }}" oninput="{{ setField_address }}" data-testid="checkout-address" style="width:100%;box-sizing:border-box;margin-top:6px;padding:11px 12px;border-radius:8px;border:1px solid {{ errBorder.address }};font-size:14px;" />
+        <sc-if value="{{ errors.address }}" hint-placeholder-val="{{ false }}"><div style="color:#e0392b;font-size:12px;margin-top:4px;">{{ errors.address }}</div></sc-if>
+      </div>
+      <div>
+        <label for="checkout-city" style="font-size:12px;font-weight:600;color:#3a3a3a;">City</label>
+        <input id="checkout-city" value="{{ form.city }}" oninput="{{ setField_city }}" data-testid="checkout-city" style="width:100%;box-sizing:border-box;margin-top:6px;padding:11px 12px;border-radius:8px;border:1px solid {{ errBorder.city }};font-size:14px;" />
+        <sc-if value="{{ errors.city }}" hint-placeholder-val="{{ false }}"><div style="color:#e0392b;font-size:12px;margin-top:4px;">{{ errors.city }}</div></sc-if>
+      </div>
+      <div>
+        <label for="checkout-zip" style="font-size:12px;font-weight:600;color:#3a3a3a;">Postal code</label>
+        <input id="checkout-zip" value="{{ form.zip }}" oninput="{{ setField_zip }}" data-testid="checkout-zip" style="width:100%;box-sizing:border-box;margin-top:6px;padding:11px 12px;border-radius:8px;border:1px solid {{ errBorder.zip }};font-size:14px;" />
+        <sc-if value="{{ errors.zip }}" hint-placeholder-val="{{ false }}"><div style="color:#e0392b;font-size:12px;margin-top:4px;">{{ errors.zip }}</div></sc-if>
+      </div>
+      <div style="grid-column:span 2;">
+        <label for="checkout-country" style="font-size:12px;font-weight:600;color:#3a3a3a;">Country</label>
+        <select id="checkout-country" value="{{ form.country }}" onchange="{{ setField_country }}" data-testid="checkout-country" style="width:100%;box-sizing:border-box;margin-top:6px;padding:11px 12px;border-radius:8px;border:1px solid #d8d4d0;font-size:14px;">
+          <option value="">Select a country…</option>
+          <option value="NL">Netherlands</option>
+          <option value="DE">Germany</option>
+          <option value="US">United States</option>
+          <option value="GB">United Kingdom</option>
+          <option value="FR">France</option>
+        </select>
+        <sc-if value="{{ errors.country }}" hint-placeholder-val="{{ false }}"><div style="color:#e0392b;font-size:12px;margin-top:4px;">{{ errors.country }}</div></sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isDelivery }}" hint-placeholder-val="{{ false }}">
+    <h2 style="font-size:19px;font-weight:700;color:#000;margin:0 0 20px;">Delivery</h2>
+    <label for="checkout-date" style="font-size:12px;font-weight:600;color:#3a3a3a;">Delivery date</label>
+    <input id="checkout-date" type="date" value="{{ form.date }}" onchange="{{ setField_date }}" data-testid="checkout-date" style="display:block;margin-top:6px;padding:11px 12px;border-radius:8px;border:1px solid {{ errBorder.date }};font-size:14px;margin-bottom:6px;" />
+    <sc-if value="{{ errors.date }}" hint-placeholder-val="{{ false }}"><div style="color:#e0392b;font-size:12px;margin-bottom:16px;">{{ errors.date }}</div></sc-if>
+
+    <div style="font-size:12px;font-weight:600;color:#3a3a3a;margin:18px 0 10px;">Delivery method</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <sc-for list="{{ deliveryOptions }}" as="d" hint-placeholder-count="2">
+        <label style="display:flex;align-items:center;gap:10px;border:1px solid {{ d.borderColor }};border-radius:8px;padding:12px 14px;font-size:14px;cursor:pointer;">
+          <input type="radio" checked="{{ d.checked }}" onchange="{{ d.select }}" data-testid="{{ d.testId }}" />
+          <span style="flex:1;">{{ d.label }}</span>
+          <span style="font-family:'IBM Plex Mono',monospace;color:#8a8a8a;">{{ d.price }}</span>
+        </label>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isPayment }}" hint-placeholder-val="{{ false }}">
+    <h2 style="font-size:19px;font-weight:700;color:#000;margin:0 0 8px;">Payment</h2>
+    <p style="font-size:13px;color:#8a8a8a;margin:0 0 20px;">Demo only — no real card is charged and no card data is stored.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div style="grid-column:span 2;">
+        <label for="checkout-card" style="font-size:12px;font-weight:600;color:#3a3a3a;">Card number</label>
+        <input id="checkout-card" placeholder="4242 4242 4242 4242" value="{{ form.card }}" oninput="{{ setField_card }}" data-testid="checkout-card" style="width:100%;box-sizing:border-box;margin-top:6px;padding:11px 12px;border-radius:8px;border:1px solid {{ errBorder.card }};font-size:14px;" />
+        <sc-if value="{{ errors.card }}" hint-placeholder-val="{{ false }}"><div style="color:#e0392b;font-size:12px;margin-top:4px;">{{ errors.card }}</div></sc-if>
+      </div>
+      <div>
+        <label for="checkout-expiry" style="font-size:12px;font-weight:600;color:#3a3a3a;">Expiry</label>
+        <input id="checkout-expiry" placeholder="MM/YY" value="{{ form.expiry }}" oninput="{{ setField_expiry }}" data-testid="checkout-expiry" style="width:100%;box-sizing:border-box;margin-top:6px;padding:11px 12px;border-radius:8px;border:1px solid #d8d4d0;font-size:14px;" />
+      </div>
+      <div>
+        <label for="checkout-cvc" style="font-size:12px;font-weight:600;color:#3a3a3a;">CVC</label>
+        <input id="checkout-cvc" placeholder="123" value="{{ form.cvc }}" oninput="{{ setField_cvc }}" data-testid="checkout-cvc" style="width:100%;box-sizing:border-box;margin-top:6px;padding:11px 12px;border-radius:8px;border:1px solid #d8d4d0;font-size:14px;" />
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isReview }}" hint-placeholder-val="{{ false }}">
+    <h2 style="font-size:19px;font-weight:700;color:#000;margin:0 0 20px;">Review order</h2>
+    <div data-testid="checkout-review-summary" style="border:1px solid #e6e2df;border-radius:10px;padding:18px;font-size:14px;line-height:1.8;color:#3a3a3a;margin-bottom:24px;">
+      <div><strong>{{ form.name }}</strong></div>
+      <div>{{ form.address }}, {{ form.city }} {{ form.zip }}</div>
+      <div>{{ form.country }}</div>
+      <div style="margin-top:10px;">Delivery: {{ form.date }} · {{ deliveryLabel }}</div>
+      <div>Card ending in {{ cardLast4 }}</div>
+    </div>
+    <p style="font-size:12px;color:#9a9a9a;margin:0 0 20px;">Placing this order simulates a completed checkout — nothing is actually charged or shipped.</p>
+  </sc-if>
+
+  <div style="display:flex;justify-content:space-between;margin-top:30px;">
+    <button onclick="{{ back }}" data-testid="checkout-back" style="border:1px solid #d8d4d0;background:#fff;padding:12px 22px;border-radius:8px;font-size:14px;cursor:pointer;visibility:{{ backVisibility }};">Back</button>
+    <sc-if value="{{ isReview }}" hint-placeholder-val="{{ false }}">
+      <button onclick="{{ placeOrder }}" data-testid="checkout-place-order" style="border:none;background:#ea5906;color:#fff;font-weight:600;padding:12px 26px;border-radius:8px;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:10px;">
+        <sc-if value="{{ placing }}" hint-placeholder-val="{{ false }}">
+          <span style="width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;animation:wdio-spin .8s linear infinite;"></span>
+        </sc-if>
+        Place order
+      </button>
+    </sc-if>
+    <sc-if value="{{ isReview }}" hint-placeholder-val="{{ false }}"></sc-if>
+    <sc-if value="{{ notReview }}" hint-placeholder-val="{{ true }}">
+      <button onclick="{{ next }}" data-testid="checkout-continue" style="border:none;background:#141414;color:#fff;font-weight:600;padding:12px 26px;border-radius:8px;font-size:14px;cursor:pointer;">Continue</button>
+    </sc-if>
+  </div>
+</div>
+
+<sc-if value="{{ orderPlaced }}" hint-placeholder-val="{{ false }}">
+  <div data-testid="order-confirmation" style="position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:200;">
+    <div style="background:#fff;border-radius:14px;padding:36px;width:380px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25);">
+      <div style="font-size:40px;margin-bottom:14px;">✅</div>
+      <h3 style="margin:0 0 10px;font-size:19px;color:#000;">Order placed</h3>
+      <p data-testid="order-number" style="margin:0 0 24px;font-size:14px;color:#5a5a5a;">Order #{{ orderNumber }} confirmed. This is a demo — no email was sent.</p>
+      <a href="index.html" data-testid="order-confirmation-home" style="display:inline-block;background:#141414;color:#fff;font-weight:600;padding:12px 24px;border-radius:8px;font-size:14px;">Back to home</a>
+    </div>
+  </div>
+</sc-if>
+
+<footer style="background:#fff;border-top:1px solid #e6e2df;padding:24px 60px;color:#9a9a9a;font-size:12px;margin-top:auto;">© 2026 WDIO Gear — demo storefront for testing, not a real store.</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      step: 0,
+      form: { name: '', email: '', address: '', city: '', zip: '', country: '', date: '', delivery: 'standard', card: '', expiry: '', cvc: '' },
+      errors: {},
+      placing: false,
+      orderPlaced: false,
+      orderNumber: Math.floor(10000 + Math.random() * 89999)
+    };
+  }
+
+  validateStep(step, form) {
+    const e = {};
+    if (step === 0) {
+      if (!form.name.trim()) e.name = 'Name is required';
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Enter a valid email address';
+      if (!form.address.trim()) e.address = 'Address is required';
+      if (!form.city.trim()) e.city = 'City is required';
+      if (!form.zip.trim()) e.zip = 'Postal code is required';
+      if (!form.country) e.country = 'Select a country';
+    } else if (step === 1) {
+      if (!form.date) e.date = 'Choose a delivery date';
+    } else if (step === 2) {
+      if (!/^\d[\d\s]{11,}$/.test(form.card.trim())) e.card = 'Enter a card number (demo only)';
+    }
+    return e;
+  }
+
+  setField(name, value) {
+    this.setState(s => ({ form: { ...s.form, [name]: value }, errors: { ...s.errors, [name]: undefined } }));
+  }
+
+  next() {
+    const errs = this.validateStep(this.state.step, this.state.form);
+    if (Object.keys(errs).length) { this.setState({ errors: errs }); return; }
+    this.setState(s => ({ step: Math.min(3, s.step + 1), errors: {} }));
+  }
+
+  back() {
+    this.setState(s => ({ step: Math.max(0, s.step - 1), errors: {} }));
+  }
+
+  placeOrder() {
+    this.setState({ placing: true });
+    setTimeout(() => {
+      if (window.__wdioCart) window.__wdioCart.clear();
+      this.setState({ placing: false, orderPlaced: true });
+    }, 1200);
+  }
+
+  renderVals() {
+    const { step, form, errors, placing, orderPlaced, orderNumber } = this.state;
+    const labels = ['Shipping', 'Delivery', 'Payment', 'Review'];
+    const steps = labels.map((label, i) => ({
+      label,
+      barColor: i <= step ? '#ea5906' : '#e6e2df',
+      textColor: i <= step ? '#000' : '#9a9a9a'
+    }));
+
+    const fieldNames = ['name', 'email', 'address', 'city', 'zip', 'country', 'date', 'card', 'expiry', 'cvc'];
+    const setters = {};
+    fieldNames.forEach(f => {
+      setters['setField_' + f] = (e) => this.setField(f, e.target.value);
+    });
+
+    const errBorder = {};
+    fieldNames.forEach(f => { errBorder[f] = errors[f] ? '#e0392b' : '#d8d4d0'; });
+
+    const deliveryOptions = [
+      { key: 'standard', label: 'Standard (3-5 days)', price: 'Free' },
+      { key: 'express', label: 'Express (1-2 days)', price: '$12.00' }
+    ].map(d => ({ ...d, testId: `delivery-${d.key}`, checked: form.delivery === d.key, borderColor: form.delivery === d.key ? '#ea5906' : '#e6e2df', select: () => this.setField('delivery', d.key) }));
+
+    return {
+      steps,
+      isShipping: step === 0,
+      isDelivery: step === 1,
+      isPayment: step === 2,
+      isReview: step === 3,
+      notReview: step !== 3,
+      form,
+      errors,
+      errBorder,
+      ...setters,
+      deliveryOptions,
+      deliveryLabel: form.delivery === 'express' ? 'Express' : 'Standard',
+      cardLast4: form.card ? form.card.replace(/\s/g, '').slice(-4) : '••••',
+      backVisibility: step === 0 ? 'hidden' : 'visible',
+      back: () => this.back(),
+      next: () => this.next(),
+      placing,
+      placeOrder: () => this.placeOrder(),
+      orderPlaced,
+      orderNumber
+    };
+  }
+}
+</script>
+</body>
+</html>

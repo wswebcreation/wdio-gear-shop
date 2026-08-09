@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./products-data.js"></script>
+<script src="./cart-store.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#fafafa;font-family:'IBM Plex Sans',sans-serif;color:#141414;}
+a{color:#ea5906;text-decoration:none;}
+a:hover{color:#c74c05;}
+input,select{font-family:'IBM Plex Sans',sans-serif;}
+</style>
+</helmet>
+<div ref="{{ rootRef }}" style="min-height:100vh;display:flex;flex-direction:column;">
+
+<header style="position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid #e6e2df;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:72px;">
+  <a href="index.html" data-testid="nav-logo" style="display:flex;align-items:center;gap:10px;color:#141414;">
+    <img src="assets/wdio-logo.svg" alt="WDIO" style="width:26px;height:26px;" />
+    <span style="font-weight:700;font-size:18px;">WDIO <span style="color:#ea5906;">Gear</span></span>
+  </a>
+  <nav style="display:flex;gap:30px;font-size:15px;font-weight:500;">
+    <a href="index.html" data-testid="nav-home" style="color:#ea5906;">Home</a>
+    <a href="Products.dc.html" data-testid="nav-shop" style="color:#141414;">Shop</a>
+    <a href="Cart.dc.html" data-testid="nav-cart" style="color:#141414;">Cart</a>
+    <a href="Account.dc.html" data-testid="nav-account" style="color:#141414;">Account</a>
+  </nav>
+  <div style="display:flex;align-items:center;gap:18px;">
+    <a href="Products.dc.html" aria-label="Search" data-testid="nav-search" style="color:#141414;font-size:15px;border:1px solid #e6e2df;border-radius:20px;padding:8px 16px;">Search…</a>
+    <a href="Cart.dc.html" aria-label="Cart" data-testid="cart-icon" style="position:relative;color:#141414;font-size:20px;">🛒<span data-testid="cart-count" style="position:absolute;top:-8px;right:-10px;background:#ea5906;color:#fff;font-size:11px;font-weight:700;border-radius:10px;padding:1px 6px;">{{ cartCount }}</span></a>
+  </div>
+</header>
+
+<section style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;padding:80px 60px;max-width:1280px;margin:0 auto;width:100%;box-sizing:border-box;">
+  <div>
+    <div style="display:inline-block;background:#eee0d7;color:#8a3d0a;font-family:'IBM Plex Mono',monospace;font-size:13px;padding:5px 12px;border-radius:20px;margin-bottom:20px;">Demo storefront</div>
+    <h1 style="font-size:52px;line-height:1.1;font-weight:700;margin:0 0 20px;color:#000;">Gear for people who spend their day running tests.</h1>
+    <p style="font-size:18px;line-height:1.6;color:#5a5a5a;margin:0 0 32px;max-width:460px;">Keyboards, headphones, mugs and desk gear — built for engineers who ship automation, not just code.</p>
+    <div style="display:flex;gap:16px;">
+      <a href="Products.dc.html" data-testid="hero-shop-cta" style="background:#ea5906;color:#fff;font-weight:600;padding:14px 28px;border-radius:8px;font-size:15px;">Shop all gear</a>
+      <a href="#features" data-testid="hero-how-it-works" style="border:1px solid #d8d4d0;color:#141414;font-weight:600;padding:14px 28px;border-radius:8px;font-size:15px;">How it works</a>
+    </div>
+  </div>
+  <div style="aspect-ratio:1/1;border-radius:16px;border:1px solid #e6e2df;background:#eee0d7;display:flex;align-items:center;justify-content:center;">
+    <img src="assets/wdio-robot.svg" alt="WDIO mascot" style="width:55%;" />
+  </div>
+</section>
+
+<section id="features" style="padding:0 60px;max-width:1280px;margin:0 auto;width:100%;box-sizing:border-box;">
+  <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:24px;">
+    <h2 style="font-size:24px;font-weight:700;color:#000;margin:0;">Shop by category</h2>
+    <a href="Products.dc.html" style="font-weight:600;font-size:14px;">View all →</a>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;padding-bottom:80px;">
+    <sc-for list="{{ categories }}" as="cat" hint-placeholder-count="8">
+      <a href="{{ cat.href }}" data-testid="{{ cat.testId }}" style="display:block;text-decoration:none;position:relative;border-radius:14px;overflow:hidden;border:1px solid #e6e2df;aspect-ratio:4/3;">
+        <sc-if value="{{ cat.mascot }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;inset:0;background:#eee0d7;display:flex;align-items:center;justify-content:center;">
+            <img src="assets/wdio-robot.svg" alt="" style="width:45%;" />
+          </div>
+        </sc-if>
+        <sc-if value="{{ cat.plain }}" hint-placeholder-val="{{ true }}">
+          <img src="{{ cat.image }}" alt="{{ cat.name }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" />
+        </sc-if>
+        <div style="position:absolute;inset:0;display:flex;align-items:flex-end;padding:16px;box-sizing:border-box;">
+          <span style="background:#fff;color:#000;font-weight:600;font-size:14px;padding:6px 12px;border-radius:8px;">{{ cat.name }}</span>
+        </div>
+        <div style="position:absolute;inset:0;background:rgba(20,20,20,0);display:flex;align-items:center;justify-content:center;transition:background .25s ease;" style-hover="background:rgba(20,20,20,.55);">
+          <span style="opacity:0;color:#fff;font-weight:600;font-size:15px;transition:opacity .25s ease;" style-hover="opacity:1;">Shop now →</span>
+        </div>
+      </a>
+    </sc-for>
+  </div>
+</section>
+
+<section style="background:#fff;border-top:1px solid #e6e2df;border-bottom:1px solid #e6e2df;padding:70px 60px;">
+  <div style="max-width:1280px;margin:0 auto;">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:24px;">
+      <h2 style="font-size:24px;font-weight:700;color:#000;margin:0;">Featured this week</h2>
+      <div style="display:flex;gap:8px;">
+        <button onclick="{{ prevSlide }}" aria-label="Previous featured products" data-testid="carousel-prev" style="width:36px;height:36px;border-radius:50%;border:1px solid #d8d4d0;background:#fff;font-size:16px;cursor:pointer;">‹</button>
+        <button onclick="{{ nextSlide }}" aria-label="Next featured products" data-testid="carousel-next" style="width:36px;height:36px;border-radius:50%;border:1px solid #d8d4d0;background:#fff;font-size:16px;cursor:pointer;">›</button>
+      </div>
+    </div>
+    <div style="overflow:hidden;">
+      <div style="display:flex;gap:20px;transition:transform .4s ease;transform:{{ trackTransform }};">
+        <sc-for list="{{ featured }}" as="p" hint-placeholder-count="5">
+          <a href="{{ p.href }}" data-testid="{{ p.testId }}" style="flex:0 0 260px;text-decoration:none;color:#141414;">
+            <div style="aspect-ratio:1/1;border-radius:12px;border:1px solid #e6e2df;overflow:hidden;margin-bottom:12px;">
+              <img src="{{ p.image }}" alt="{{ p.name }}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;" />
+            </div>
+            <div style="font-weight:600;font-size:14px;">{{ p.name }}</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;color:#ea5906;font-weight:600;">{{ p.priceLabel }}</div>
+          </a>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;justify-content:center;margin-top:20px;">
+      <sc-for list="{{ dots }}" as="d" hint-placeholder-count="5">
+        <button onclick="{{ d.select }}" aria-label="{{ d.label }}" data-testid="{{ d.testId }}" style="width:8px;height:8px;border-radius:50%;border:none;padding:0;background:{{ d.color }};cursor:pointer;"></button>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<section style="padding:80px 60px;max-width:1280px;margin:0 auto;width:100%;box-sizing:border-box;display:grid;grid-template-columns:repeat(3,1fr);gap:40px;">
+  <sc-for list="{{ reveals }}" as="r" hint-placeholder-count="3">
+    <div ref="{{ r.ref }}" style="opacity:0;transform:translateY(28px);transition:opacity .6s ease,transform .6s ease;">
+      <div style="font-size:32px;margin-bottom:12px;">{{ r.icon }}</div>
+      <h3 style="font-size:18px;font-weight:700;margin:0 0 8px;color:#000;">{{ r.title }}</h3>
+      <p style="font-size:15px;color:#5a5a5a;line-height:1.6;margin:0;">{{ r.body }}</p>
+    </div>
+  </sc-for>
+</section>
+
+<section style="background:#141414;padding:60px;">
+  <div style="max-width:640px;margin:0 auto;text-align:center;">
+    <h2 style="color:#fff;font-size:24px;font-weight:700;margin:0 0 10px;">Get 10% off your first order</h2>
+    <p style="color:#bdbdbd;font-size:15px;margin:0 0 26px;">Join the list — new gear drops monthly. No spam, just gear.</p>
+    <form onsubmit="{{ submitNewsletter }}" style="display:flex;gap:10px;justify-content:center;">
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <input value="{{ email }}" oninput="{{ setEmail }}" type="email" required="{{ true }}" placeholder="you@company.com" data-testid="newsletter-email" style="width:280px;padding:12px 16px;border-radius:8px;border:1px solid {{ emailBorder }};font-size:14px;" />
+        <sc-if value="{{ emailError }}" hint-placeholder-val="{{ false }}">
+          <span data-testid="newsletter-error" style="color:#ff8a65;font-size:12px;text-align:left;">{{ emailError }}</span>
+        </sc-if>
+      </div>
+      <button type="submit" data-testid="newsletter-submit" style="background:#ea5906;color:#fff;font-weight:600;border:none;padding:12px 22px;border-radius:8px;font-size:14px;cursor:pointer;white-space:nowrap;">Subscribe</button>
+    </form>
+    <sc-if value="{{ subscribed }}" hint-placeholder-val="{{ false }}">
+      <p data-testid="newsletter-success" style="color:#8bc34a;font-size:13px;margin-top:14px;">You're on the list. Thanks!</p>
+    </sc-if>
+  </div>
+</section>
+
+<footer style="background:#fff;border-top:1px solid #e6e2df;padding:50px 60px 30px;">
+  <div style="max-width:1280px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;padding-bottom:30px;">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <img src="assets/wdio-logo.svg" alt="WDIO" style="width:22px;height:22px;" />
+        <span style="font-weight:700;font-size:16px;">WDIO Gear</span>
+      </div>
+      <p style="color:#8a8a8a;font-size:13px;max-width:320px;line-height:1.6;">A demo storefront used to benchmark UI automation — not a real store.</p>
+    </div>
+    <div>
+      <div style="font-weight:700;font-size:13px;color:#000;margin-bottom:12px;">Shop</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;">
+        <a href="Products.dc.html" data-testid="footer-all-products" style="color:#5a5a5a;">All products</a>
+        <a href="Cart.dc.html" data-testid="footer-cart" style="color:#5a5a5a;">Cart</a>
+      </div>
+    </div>
+    <div>
+      <div style="font-weight:700;font-size:13px;color:#000;margin-bottom:12px;">Account</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;">
+        <a href="Account.dc.html" data-testid="footer-sign-in" style="color:#5a5a5a;">Sign in</a>
+        <a href="Checkout.dc.html" data-testid="footer-checkout" style="color:#5a5a5a;">Checkout</a>
+      </div>
+    </div>
+  </div>
+  <div style="max-width:1280px;margin:0 auto;border-top:1px solid #e6e2df;padding-top:20px;color:#9a9a9a;font-size:12px;">© 2026 WDIO Gear — demo storefront for testing, not a real store.</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.rootRef = React.createRef();
+    this.reveal1 = React.createRef();
+    this.reveal2 = React.createRef();
+    this.reveal3 = React.createRef();
+    this.state = { slide: 0, email: '', emailError: '', subscribed: false, cartCount: 0 };
+  }
+
+  componentDidMount() {
+    if (window.__wdioCart) {
+      this.setState({ cartCount: window.__wdioCart.count() });
+      this._unsubCart = window.__wdioCart.onChange(() => this.setState({ cartCount: window.__wdioCart.count() }));
+    }
+    const opts = { threshold: 0.2 };
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.style.opacity = '1';
+          e.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, opts);
+    [this.reveal1, this.reveal2, this.reveal3].forEach(r => { if (r.current) obs.observe(r.current); });
+  }
+
+  submitNewsletter(e) {
+    e.preventDefault();
+    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.state.email);
+    if (!ok) { this.setState({ emailError: 'Enter a valid email address' }); return; }
+    this.setState({ emailError: '', subscribed: true });
+  }
+
+  renderVals() {
+    const PRODUCTS = (window.__wdioProducts || []);
+    const slugify = (s) => s.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const categories = ["Keyboards","Headphones","Backpacks","Drinkware","Apparel","Desk Accessories","Stickers & Decor","Webcams & Audio"]
+      .map(name => ({
+        name,
+        href: `Products.dc.html?category=${encodeURIComponent(name)}`,
+        mascot: name === 'Stickers & Decor',
+        plain: name !== 'Stickers & Decor',
+        image: window.__wdioCategoryImage ? window.__wdioCategoryImage(name) : null,
+        testId: `category-tile-${slugify(name)}`
+      }));
+
+    const featuredSrc = PRODUCTS.length ? PRODUCTS.slice(0, 12) : [];
+    const perSlide = 5;
+    const slideCount = Math.max(1, Math.ceil(featuredSrc.length / perSlide) || 5);
+    const slide = this.state.slide % slideCount;
+    const featured = featuredSrc.map(p => ({ name: p.name, href: `Product.dc.html?id=${p.id}`, priceLabel: '$' + p.price.toFixed(2), image: p.imageCard, testId: `featured-product-${p.id}` }));
+
+    const dots = Array.from({ length: slideCount }, (_, i) => ({
+      color: i === slide ? '#ea5906' : '#d8d4d0',
+      label: `Go to slide ${i + 1}`,
+      testId: `carousel-dot-${i}`,
+      select: () => this.setState({ slide: i })
+    }));
+
+    return {
+      rootRef: this.rootRef,
+      categories,
+      featured,
+      trackTransform: `translateX(-${slide * 280 * perSlide / slideCount}px)`,
+      dots,
+      prevSlide: () => this.setState(s => ({ slide: (s.slide - 1 + slideCount) % slideCount })),
+      nextSlide: () => this.setState(s => ({ slide: (s.slide + 1) % slideCount })),
+      reveals: [
+        { ref: this.reveal1, icon: '🚚', title: 'Fast, simulated shipping', body: 'Every order flow is mocked end to end so you can test checkout without a real payment step.' },
+        { ref: this.reveal2, icon: '🧪', title: 'Built to be tested', body: 'Consistent markup, real form controls, and interactive widgets your automation can target.' },
+        { ref: this.reveal3, icon: '📦', title: 'Small, deliberate batches', body: '64 products across 8 categories — enough variety without noisy, unpredictable data.' }
+      ],
+      email: this.state.email,
+      setEmail: (e) => this.setState({ email: e.target.value }),
+      emailBorder: this.state.emailError ? '#e0392b' : '#3a3a3a',
+      emailError: this.state.emailError,
+      subscribed: this.state.subscribed,
+      cartCount: this.state.cartCount
+    };
+  }
+}
+</script>
+</body>
+</html>
