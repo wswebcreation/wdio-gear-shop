@@ -1,0 +1,84 @@
+/**
+ * Repro for webdriverio/webdriverio#15481
+ * Compare browser.url() (BiDi) vs classic navigateTo vs raw browsingContext.navigate.
+ *
+ * Env:
+ *   BENCH_URL  default http://localhost:4173/index.html
+ *   N          iterations (default 10)
+ */
+import { remote } from 'webdriverio'
+
+const URL = process.env.BENCH_URL || 'http://localhost:4173/index.html'
+const N = Number(process.env.N || 10)
+const chromeBin = process.env.CHROME_BIN || process.env.CHROME_PATH
+
+const chromeOptions = {
+  args: ['--headless=new', '--no-sandbox', '--disable-dev-shm-usage'],
+}
+if (chromeBin) {
+  chromeOptions.binary = chromeBin
+}
+
+const browser = await remote({
+  logLevel: 'error',
+  bidiResponseTimeout: 30000,
+  capabilities: {
+    browserName: 'chrome',
+    'goog:chromeOptions': chromeOptions,
+  },
+})
+
+const caps = browser.capabilities
+console.log(JSON.stringify({
+  phase: 'session',
+  isBidi: browser.isBidi,
+  browserVersion: caps.browserVersion,
+  pageLoadStrategy: caps.pageLoadStrategy,
+  webSocketUrl: Boolean(caps.webSocketUrl),
+  URL,
+  N,
+}))
+
+await browser.url(URL) // warm-up
+
+const urlTimes = []
+const classicTimes = []
+const biDiComplete = []
+const biDiNone = []
+
+const tree = await browser.browsingContextGetTree({})
+const context = tree.contexts[0].context
+
+for (let i = 0; i < N; i++) {
+  let t0 = performance.now()
+  await browser.url(URL)
+  urlTimes.push(Math.round(performance.now() - t0))
+
+  t0 = performance.now()
+  await browser.navigateTo(URL)
+  classicTimes.push(Math.round(performance.now() - t0))
+
+  t0 = performance.now()
+  await browser.browsingContextNavigate({ context, url: URL, wait: 'complete' })
+  biDiComplete.push(Math.round(performance.now() - t0))
+
+  t0 = performance.now()
+  await browser.browsingContextNavigate({ context, url: URL, wait: 'none' })
+  biDiNone.push(Math.round(performance.now() - t0))
+}
+
+const med = (a) => [...a].sort((x, y) => x - y)[Math.floor(a.length / 2)]
+console.log(JSON.stringify({
+  phase: 'results',
+  urlMed: med(urlTimes),
+  classicNavigateToMed: med(classicTimes),
+  browsingContextCompleteMed: med(biDiComplete),
+  browsingContextNoneMed: med(biDiNone),
+  deltaUrlMinusClassic: med(urlTimes) - med(classicTimes),
+  urlSamples: urlTimes,
+  classicSamples: classicTimes,
+  browsingContextCompleteSamples: biDiComplete,
+  browsingContextNoneSamples: biDiNone,
+}))
+
+await browser.deleteSession()

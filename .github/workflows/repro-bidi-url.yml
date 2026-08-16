@@ -1,0 +1,104 @@
+# Repro webdriverio/webdriverio#15481 against this gear shop (cheap local static page).
+# Goal: compare Linux CI vs macOS CI with the same script the issue uses.
+name: Repro BiDi url() vs classic navigateTo
+
+on:
+  workflow_dispatch:
+    inputs:
+      runs:
+        description: How many times to run the repro script
+        required: false
+        default: '5'
+      n:
+        description: Iterations per script run (N)
+        required: false
+        default: '10'
+      also_live:
+        description: Also run once against https://webdriver.io
+        type: boolean
+        required: false
+        default: true
+  push:
+    paths:
+      - '.github/workflows/repro-bidi-url.yml'
+      - 'scripts/repro-url-bidi.mjs'
+
+jobs:
+  repro:
+    name: ${{ matrix.os }} · gear shop localhost
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install site + webdriverio
+        run: |
+          npm ci
+          npm install --no-save webdriverio@latest
+
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+        id: chrome
+
+      - name: Chrome version
+        run: |
+          echo "setup-chrome path: ${{ steps.chrome.outputs.chrome-path }}"
+          "${{ steps.chrome.outputs.chrome-path }}" --version || true
+          google-chrome --version || true
+          chromium --version || true
+
+      - name: Start gear shop
+        run: |
+          npm start &
+          echo $! > /tmp/webshop.pid
+          for i in $(seq 1 30); do
+            if curl -sf "http://127.0.0.1:4173/index.html" >/dev/null; then
+              echo "shop up"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "shop failed to start"
+          exit 1
+
+      - name: Run repro against localhost gear shop
+        env:
+          BENCH_URL: http://127.0.0.1:4173/index.html
+          N: ${{ inputs.n || '10' }}
+          # Prefer the Chrome from setup-chrome when present
+          CHROME_BIN: ${{ steps.chrome.outputs.chrome-path }}
+        run: |
+          RUNS='${{ inputs.runs || 5 }}'
+          echo "os=${{ matrix.os }} runs=$RUNS N=$N URL=$BENCH_URL"
+          for i in $(seq 1 "$RUNS"); do
+            echo "=== localhost run $i / $RUNS ==="
+            node scripts/repro-url-bidi.mjs || echo "RUN $i FAILED"
+          done
+
+      - name: Run repro against https://webdriver.io
+        if: ${{ inputs.also_live != false }}
+        env:
+          BENCH_URL: https://webdriver.io/
+          N: ${{ inputs.n || '10' }}
+        run: |
+          echo "=== live webdriver.io (1 run) ==="
+          node scripts/repro-url-bidi.mjs || echo "LIVE RUN FAILED"
+
+      - name: Stop gear shop
+        if: always()
+        run: |
+          if [ -f /tmp/webshop.pid ]; then
+            kill "$(cat /tmp/webshop.pid)" || true
+          fi
