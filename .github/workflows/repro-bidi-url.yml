@@ -47,21 +47,21 @@ jobs:
           npm ci
           npm install --no-save webdriverio@latest
 
-      # Matching Chrome + ChromeDriver is required on macOS; a mismatched
-      # driver caused session POST timeouts in run #1.
-      - name: Install Chrome + ChromeDriver
+      # Install Chrome only. Do NOT use setup-chrome's "stable" ChromeDriver —
+      # it can resolve to a newer major (152) than Chrome stable (151), which
+      # breaks session create. WDIO downloads a driver that matches CHROME_BIN.
+      - name: Install Chrome
         uses: browser-actions/setup-chrome@v1
         with:
           chrome-version: stable
-          install-chromedriver: true
+          install-chromedriver: false
         id: chrome
 
       - name: Chrome version
         run: |
           echo "chrome-path=${{ steps.chrome.outputs.chrome-path }}"
-          echo "chromedriver-path=${{ steps.chrome.outputs.chromedriver-path }}"
+          echo "chrome-version=${{ steps.chrome.outputs.chrome-version }}"
           "${{ steps.chrome.outputs.chrome-path }}" --version
-          "${{ steps.chrome.outputs.chromedriver-path }}" --version
 
       - name: Start gear shop
         run: |
@@ -82,12 +82,10 @@ jobs:
           BENCH_URL: http://127.0.0.1:4173/index.html
           N: ${{ inputs.n || '10' }}
           CHROME_BIN: ${{ steps.chrome.outputs.chrome-path }}
-          CHROMEDRIVER_PATH: ${{ steps.chrome.outputs.chromedriver-path }}
         run: |
           RUNS='${{ inputs.runs || 5 }}'
           echo "os=${{ matrix.os }} runs=$RUNS N=$N URL=$BENCH_URL"
           echo "CHROME_BIN=$CHROME_BIN"
-          echo "CHROMEDRIVER_PATH=$CHROMEDRIVER_PATH"
           failed=0
           for i in $(seq 1 "$RUNS"); do
             echo "=== localhost run $i / $RUNS ==="
@@ -104,7 +102,6 @@ jobs:
           BENCH_URL: https://webdriver.io/
           N: ${{ inputs.n || '10' }}
           CHROME_BIN: ${{ steps.chrome.outputs.chrome-path }}
-          CHROMEDRIVER_PATH: ${{ steps.chrome.outputs.chromedriver-path }}
         run: |
           echo "=== live webdriver.io (1 run) ==="
           node scripts/repro-url-bidi.mjs
@@ -115,6 +112,5 @@ jobs:
           if [ -f /tmp/webshop.pid ]; then
             kill "$(cat /tmp/webshop.pid)" || true
           fi
-          # macOS left orphan Chromes hanging after session timeouts
           pkill -f 'Google Chrome' || true
           pkill -f chromedriver || true

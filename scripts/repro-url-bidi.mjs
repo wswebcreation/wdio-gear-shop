@@ -6,7 +6,7 @@
  *   BENCH_URL           default http://localhost:4173/index.html
  *   N                   iterations (default 10)
  *   CHROME_BIN          optional Chrome binary (setup-chrome on CI)
- *   CHROMEDRIVER_PATH   optional matching ChromeDriver (required with CHROME_BIN)
+ *   CHROMEDRIVER_PATH   optional; omit to let WDIO download a matching driver
  */
 import { remote } from 'webdriverio'
 import { mkdtempSync } from 'node:fs'
@@ -38,7 +38,7 @@ const capabilities = {
   'goog:chromeOptions': chromeOptions,
 }
 
-// Keep ChromeDriver in lockstep with setup-chrome's binary (macOS CI hung otherwise).
+// Only pin ChromeDriver when explicitly provided and known to match Chrome.
 if (chromedriverPath) {
   capabilities['wdio:chromedriverOptions'] = { binary: chromedriverPath }
 }
@@ -46,7 +46,7 @@ if (chromedriverPath) {
 const browser = await remote({
   logLevel: 'error',
   bidiResponseTimeout: 60000,
-  connectionRetryTimeout: 120000,
+  connectionRetryTimeout: 180000,
   connectionRetryCount: 2,
   capabilities,
 })
