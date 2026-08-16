@@ -31,6 +31,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,18 +47,21 @@ jobs:
           npm ci
           npm install --no-save webdriverio@latest
 
-      - name: Install Chrome
+      # Matching Chrome + ChromeDriver is required on macOS; a mismatched
+      # driver caused session POST timeouts in run #1.
+      - name: Install Chrome + ChromeDriver
         uses: browser-actions/setup-chrome@v1
         with:
           chrome-version: stable
+          install-chromedriver: true
         id: chrome
 
       - name: Chrome version
         run: |
-          echo "setup-chrome path: ${{ steps.chrome.outputs.chrome-path }}"
-          "${{ steps.chrome.outputs.chrome-path }}" --version || true
-          google-chrome --version || true
-          chromium --version || true
+          echo "chrome-path=${{ steps.chrome.outputs.chrome-path }}"
+          echo "chromedriver-path=${{ steps.chrome.outputs.chromedriver-path }}"
+          "${{ steps.chrome.outputs.chrome-path }}" --version
+          "${{ steps.chrome.outputs.chromedriver-path }}" --version
 
       - name: Start gear shop
         run: |
@@ -77,24 +81,33 @@ jobs:
         env:
           BENCH_URL: http://127.0.0.1:4173/index.html
           N: ${{ inputs.n || '10' }}
-          # Prefer the Chrome from setup-chrome when present
           CHROME_BIN: ${{ steps.chrome.outputs.chrome-path }}
+          CHROMEDRIVER_PATH: ${{ steps.chrome.outputs.chromedriver-path }}
         run: |
           RUNS='${{ inputs.runs || 5 }}'
           echo "os=${{ matrix.os }} runs=$RUNS N=$N URL=$BENCH_URL"
+          echo "CHROME_BIN=$CHROME_BIN"
+          echo "CHROMEDRIVER_PATH=$CHROMEDRIVER_PATH"
+          failed=0
           for i in $(seq 1 "$RUNS"); do
             echo "=== localhost run $i / $RUNS ==="
-            node scripts/repro-url-bidi.mjs || echo "RUN $i FAILED"
+            if ! node scripts/repro-url-bidi.mjs; then
+              echo "RUN $i FAILED"
+              failed=1
+            fi
           done
+          exit "$failed"
 
       - name: Run repro against https://webdriver.io
-        if: ${{ inputs.also_live != false }}
+        if: ${{ github.event_name == 'push' || inputs.also_live }}
         env:
           BENCH_URL: https://webdriver.io/
           N: ${{ inputs.n || '10' }}
+          CHROME_BIN: ${{ steps.chrome.outputs.chrome-path }}
+          CHROMEDRIVER_PATH: ${{ steps.chrome.outputs.chromedriver-path }}
         run: |
           echo "=== live webdriver.io (1 run) ==="
-          node scripts/repro-url-bidi.mjs || echo "LIVE RUN FAILED"
+          node scripts/repro-url-bidi.mjs
 
       - name: Stop gear shop
         if: always()
@@ -102,3 +115,6 @@ jobs:
           if [ -f /tmp/webshop.pid ]; then
             kill "$(cat /tmp/webshop.pid)" || true
           fi
+          # macOS left orphan Chromes hanging after session timeouts
+          pkill -f 'Google Chrome' || true
+          pkill -f chromedriver || true
