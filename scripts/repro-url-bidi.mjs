@@ -3,10 +3,11 @@
  * Compare browser.url() (BiDi) vs classic navigateTo vs raw browsingContext.navigate.
  *
  * Env:
- *   BENCH_URL           default http://localhost:4173/index.html
- *   N                   iterations (default 10)
- *   CHROME_BIN          optional Chrome binary (setup-chrome on CI)
- *   CHROMEDRIVER_PATH   optional; omit to let WDIO download a matching driver
+ *   BENCH_URL  default http://localhost:4173/index.html
+ *   N          iterations (default 10)
+ *
+ * Chrome + ChromeDriver: leave unset so WDIO installs a matched
+ * Chrome-for-Testing pair (setup-chrome macOS binaries hang session create).
  */
 import { remote } from 'webdriverio'
 import { mkdtempSync } from 'node:fs'
@@ -15,40 +16,26 @@ import { join } from 'node:path'
 
 const URL = process.env.BENCH_URL || 'http://localhost:4173/index.html'
 const N = Number(process.env.N || 10)
-const chromeBin = process.env.CHROME_BIN || process.env.CHROME_PATH
-const chromedriverPath = process.env.CHROMEDRIVER_PATH
 
 const userDataDir = mkdtempSync(join(tmpdir(), 'wdio-repro-chrome-'))
 
-const chromeOptions = {
-  args: [
-    '--headless=new',
-    '--no-sandbox',
-    '--disable-dev-shm-usage',
-    '--disable-gpu',
-    `--user-data-dir=${userDataDir}`,
-  ],
-}
-if (chromeBin) {
-  chromeOptions.binary = chromeBin
-}
-
-const capabilities = {
-  browserName: 'chrome',
-  'goog:chromeOptions': chromeOptions,
-}
-
-// Only pin ChromeDriver when explicitly provided and known to match Chrome.
-if (chromedriverPath) {
-  capabilities['wdio:chromedriverOptions'] = { binary: chromedriverPath }
-}
-
 const browser = await remote({
-  logLevel: 'error',
+  logLevel: 'warn',
   bidiResponseTimeout: 60000,
   connectionRetryTimeout: 180000,
   connectionRetryCount: 2,
-  capabilities,
+  capabilities: {
+    browserName: 'chrome',
+    'goog:chromeOptions': {
+      args: [
+        '--headless=new',
+        '--no-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        `--user-data-dir=${userDataDir}`,
+      ],
+    },
+  },
 })
 
 try {
@@ -59,8 +46,7 @@ try {
     browserVersion: caps.browserVersion,
     pageLoadStrategy: caps.pageLoadStrategy,
     webSocketUrl: Boolean(caps.webSocketUrl),
-    chromeBin: chromeBin || null,
-    chromedriverPath: chromedriverPath || null,
+    platform: process.platform,
     URL,
     N,
   }))
