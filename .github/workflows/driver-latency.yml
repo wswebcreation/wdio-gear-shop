@@ -1,0 +1,104 @@
+# Benchmark raw driver latency: classic WebDriver HTTP vs BiDi WebSocket
+# for browsingContext.navigate on both Linux CI and macOS CI.
+#
+# Results are printed as JSON summaries and uploaded as artifacts so the
+# two OSes can be compared side-by-side without needing a Mac locally.
+name: Driver latency · classic vs BiDi
+
+on:
+  workflow_dispatch:
+    inputs:
+      n:
+        description: Iterations per run (N)
+        required: false
+        default: '15'
+      runs:
+        description: How many times to run the script
+        required: false
+        default: '3'
+      url:
+        description: URL to navigate to
+        required: false
+        default: 'http://127.0.0.1:4173/index.html'
+  push:
+    paths:
+      - '.github/workflows/driver-latency.yml'
+      - 'scripts/debug-driver-latency.mjs'
+
+jobs:
+  bench:
+    name: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies + webdriverio
+        run: |
+          npm ci
+          npm install --no-save webdriverio@latest
+
+      - name: Start gear shop
+        run: |
+          npm start &
+          echo $! > /tmp/webshop.pid
+          for i in $(seq 1 30); do
+            if curl -sf "http://127.0.0.1:4173/index.html" >/dev/null; then
+              echo "shop up"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "shop failed to start"
+          exit 1
+
+      - name: Run driver-latency benchmark
+        env:
+          REPRO_URL: ${{ inputs.url || 'http://127.0.0.1:4173/index.html' }}
+          REPRO_N: ${{ inputs.n || '15' }}
+          REPRO_OUT_DIR: ${{ github.workspace }}/output
+          # WDIO starts headless Chrome-for-Testing via @wdio/safaridriver, no
+          # browser-actions/setup-chrome needed (avoids version mismatch on mac).
+        run: |
+          RUNS='${{ inputs.runs || 3 }}'
+          echo "os=${{ matrix.os }} runs=$RUNS N=$REPRO_N url=$REPRO_URL"
+          mkdir -p output
+          failed=0
+          for i in $(seq 1 "$RUNS"); do
+            echo "=== run $i / $RUNS ==="
+            if ! node scripts/debug-driver-latency.mjs; then
+              echo "RUN $i FAILED"
+              failed=1
+            fi
+          done
+          exit "$failed"
+
+      - name: Stop gear shop
+        if: always()
+        run: |
+          if [ -f /tmp/webshop.pid ]; then
+            kill "$(cat /tmp/webshop.pid)" || true
+          fi
+          pkill -f 'Google Chrome' || true
+          pkill -f 'chrome-headless' || true
+          pkill -f chromedriver || true
+
+      - name: Upload latency reports + ChromeDriver logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: driver-latency-${{ matrix.os }}-${{ github.run_attempt }}
+          path: output/
+          retention-days: 30
