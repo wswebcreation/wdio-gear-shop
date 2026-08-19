@@ -1,0 +1,191 @@
+{
+  "meta": {
+    "runId": "2026-08-18T07-46-49-761Z",
+    "url": "http://127.0.0.1:4173/index.html",
+    "iterations": 15,
+    "platformName": "linux",
+    "browserName": "chrome",
+    "browserVersion": "151.0.7922.108",
+    "isBidi": false,
+    "chromedriverLogPath": "/home/runner/work/wdio-gear-shop/wdio-gear-shop/output/chromedriver-latency-2026-08-18T07-46-49-761Z.log",
+    "reportPath": "/home/runner/work/wdio-gear-shop/wdio-gear-shop/output/driver-latency-2026-08-18T07-46-49-761Z.json"
+  },
+  "wdioTimings": {
+    "classicNavigateTo": {
+      "med": 134,
+      "p95": 194,
+      "min": 24,
+      "max": 194,
+      "samples": [
+        165,
+        194,
+        138,
+        122,
+        132,
+        24,
+        161,
+        144,
+        113,
+        30,
+        133,
+        149,
+        134,
+        117,
+        135
+      ]
+    },
+    "bidiNavigateComplete": {
+      "med": 135,
+      "p95": 205,
+      "min": 61,
+      "max": 205,
+      "samples": [
+        61,
+        135,
+        167,
+        103,
+        205,
+        102,
+        141,
+        176,
+        98,
+        109,
+        159,
+        111,
+        202,
+        173,
+        111
+      ]
+    },
+    "bidiNavigateNone": {
+      "med": 61,
+      "p95": 115,
+      "min": 22,
+      "max": 115,
+      "samples": [
+        115,
+        69,
+        25,
+        61,
+        22,
+        64,
+        61,
+        25,
+        85,
+        71,
+        22,
+        90,
+        35,
+        22,
+        66
+      ]
+    },
+    "getTree": {
+      "med": 1,
+      "p95": 74,
+      "min": 1,
+      "max": 74,
+      "samples": [
+        33,
+        74,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    }
+  },
+  "deltas": {
+    "bidiComplete_minus_classic_med": 1,
+    "bidiNone_minus_classic_med": -73,
+    "interpretation": "BiDi and classic are within 2× of each other"
+  },
+  "driverLevel": {
+    "classicHttp": {
+      "note": "ChromeDriver COMMAND Navigate → RESPONSE Navigate (includes Page.navigate DevTools round-trip)",
+      "count": 15,
+      "med": 121,
+      "p95": 158,
+      "min": 18,
+      "max": 158,
+      "samples": [
+        150,
+        146,
+        135,
+        110,
+        121,
+        18,
+        158,
+        132,
+        109,
+        22,
+        128,
+        121,
+        131,
+        114,
+        117
+      ]
+    },
+    "bidiWebSocket": {
+      "browsingContext.navigate": {
+        "med": 98,
+        "p95": 202,
+        "min": 22,
+        "max": 205,
+        "samples": [
+          192,
+          61,
+          115,
+          135,
+          69,
+          167,
+          25,
+          103,
+          61,
+          205,
+          22,
+          102,
+          63,
+          141,
+          60,
+          176,
+          25,
+          98,
+          85,
+          109,
+          71,
+          159,
+          22,
+          111,
+          90,
+          202,
+          35,
+          173,
+          22,
+          111,
+          66
+        ]
+      },
+      "browsingContext.getTree": {
+        "med": 1,
+        "p95": 123,
+        "min": 1,
+        "max": 123,
+        "samples": [
+          123,
+          33,
+          74,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "waitingForPendingNavigationsCount": 32
+  }
+}

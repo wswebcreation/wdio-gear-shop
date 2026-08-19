@@ -1,0 +1,191 @@
+{
+  "meta": {
+    "runId": "2026-08-18T07-47-42-532Z",
+    "url": "http://127.0.0.1:4173/index.html",
+    "iterations": 15,
+    "platformName": "mac",
+    "browserName": "chrome",
+    "browserVersion": "151.0.7922.138",
+    "isBidi": false,
+    "chromedriverLogPath": "/Users/runner/work/wdio-gear-shop/wdio-gear-shop/output/chromedriver-latency-2026-08-18T07-47-42-532Z.log",
+    "reportPath": "/Users/runner/work/wdio-gear-shop/wdio-gear-shop/output/driver-latency-2026-08-18T07-47-42-532Z.json"
+  },
+  "wdioTimings": {
+    "classicNavigateTo": {
+      "med": 130,
+      "p95": 730,
+      "min": 96,
+      "max": 730,
+      "samples": [
+        122,
+        388,
+        292,
+        125,
+        730,
+        163,
+        114,
+        104,
+        130,
+        101,
+        130,
+        112,
+        96,
+        197,
+        135
+      ]
+    },
+    "bidiNavigateComplete": {
+      "med": 667,
+      "p95": 7381,
+      "min": 528,
+      "max": 7381,
+      "samples": [
+        7381,
+        974,
+        623,
+        876,
+        583,
+        574,
+        986,
+        616,
+        667,
+        752,
+        689,
+        623,
+        974,
+        528,
+        578
+      ]
+    },
+    "bidiNavigateNone": {
+      "med": 612,
+      "p95": 1079,
+      "min": 473,
+      "max": 1079,
+      "samples": [
+        556,
+        1079,
+        633,
+        572,
+        833,
+        612,
+        598,
+        757,
+        473,
+        643,
+        804,
+        525,
+        502,
+        869,
+        524
+      ]
+    },
+    "getTree": {
+      "med": 18,
+      "p95": 674,
+      "min": 18,
+      "max": 674,
+      "samples": [
+        110,
+        674,
+        19,
+        18,
+        18,
+        18,
+        18,
+        18
+      ]
+    }
+  },
+  "deltas": {
+    "bidiComplete_minus_classic_med": 537,
+    "bidiNone_minus_classic_med": 482,
+    "interpretation": "BiDi navigation significantly slower than classic on this platform"
+  },
+  "driverLevel": {
+    "classicHttp": {
+      "note": "ChromeDriver COMMAND Navigate → RESPONSE Navigate (includes Page.navigate DevTools round-trip)",
+      "count": 15,
+      "med": 125,
+      "p95": 726,
+      "min": 93,
+      "max": 726,
+      "samples": [
+        116,
+        385,
+        288,
+        121,
+        726,
+        159,
+        111,
+        101,
+        127,
+        98,
+        125,
+        108,
+        93,
+        193,
+        129
+      ]
+    },
+    "bidiWebSocket": {
+      "browsingContext.navigate": {
+        "med": 623,
+        "p95": 1078,
+        "min": 473,
+        "max": 7380,
+        "samples": [
+          524,
+          7380,
+          556,
+          974,
+          1078,
+          623,
+          633,
+          876,
+          572,
+          583,
+          833,
+          574,
+          612,
+          986,
+          597,
+          616,
+          757,
+          667,
+          473,
+          752,
+          643,
+          689,
+          804,
+          623,
+          525,
+          974,
+          502,
+          528,
+          869,
+          578,
+          524
+        ]
+      },
+      "browsingContext.getTree": {
+        "med": 18,
+        "p95": 674,
+        "min": 17,
+        "max": 674,
+        "samples": [
+          162,
+          110,
+          674,
+          19,
+          18,
+          18,
+          18,
+          17,
+          18
+        ]
+      }
+    },
+    "waitingForPendingNavigationsCount": 32
+  }
+}

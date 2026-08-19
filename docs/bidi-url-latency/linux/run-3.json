@@ -1,0 +1,191 @@
+{
+  "meta": {
+    "runId": "2026-08-18T07-46-56-262Z",
+    "url": "http://127.0.0.1:4173/index.html",
+    "iterations": 15,
+    "platformName": "linux",
+    "browserName": "chrome",
+    "browserVersion": "151.0.7922.108",
+    "isBidi": false,
+    "chromedriverLogPath": "/home/runner/work/wdio-gear-shop/wdio-gear-shop/output/chromedriver-latency-2026-08-18T07-46-56-262Z.log",
+    "reportPath": "/home/runner/work/wdio-gear-shop/wdio-gear-shop/output/driver-latency-2026-08-18T07-46-56-262Z.json"
+  },
+  "wdioTimings": {
+    "classicNavigateTo": {
+      "med": 136,
+      "p95": 224,
+      "min": 39,
+      "max": 224,
+      "samples": [
+        224,
+        136,
+        146,
+        153,
+        54,
+        39,
+        159,
+        124,
+        168,
+        103,
+        148,
+        111,
+        161,
+        104,
+        133
+      ]
+    },
+    "bidiNavigateComplete": {
+      "med": 113,
+      "p95": 174,
+      "min": 85,
+      "max": 174,
+      "samples": [
+        85,
+        110,
+        134,
+        109,
+        125,
+        88,
+        174,
+        153,
+        113,
+        107,
+        113,
+        155,
+        129,
+        100,
+        120
+      ]
+    },
+    "bidiNavigateNone": {
+      "med": 80,
+      "p95": 115,
+      "min": 19,
+      "max": 115,
+      "samples": [
+        89,
+        94,
+        71,
+        92,
+        81,
+        85,
+        19,
+        22,
+        80,
+        69,
+        70,
+        24,
+        115,
+        67,
+        83
+      ]
+    },
+    "getTree": {
+      "med": 1,
+      "p95": 50,
+      "min": 1,
+      "max": 50,
+      "samples": [
+        39,
+        50,
+        22,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    }
+  },
+  "deltas": {
+    "bidiComplete_minus_classic_med": -23,
+    "bidiNone_minus_classic_med": -56,
+    "interpretation": "BiDi and classic are within 2× of each other"
+  },
+  "driverLevel": {
+    "classicHttp": {
+      "note": "ChromeDriver COMMAND Navigate → RESPONSE Navigate (includes Page.navigate DevTools round-trip)",
+      "count": 15,
+      "med": 125,
+      "p95": 219,
+      "min": 33,
+      "max": 219,
+      "samples": [
+        219,
+        131,
+        136,
+        125,
+        50,
+        33,
+        150,
+        115,
+        155,
+        101,
+        118,
+        101,
+        150,
+        100,
+        129
+      ]
+    },
+    "bidiWebSocket": {
+      "browsingContext.navigate": {
+        "med": 94,
+        "p95": 174,
+        "min": 19,
+        "max": 187,
+        "samples": [
+          187,
+          85,
+          89,
+          110,
+          94,
+          134,
+          71,
+          109,
+          92,
+          125,
+          80,
+          88,
+          85,
+          174,
+          19,
+          153,
+          21,
+          113,
+          80,
+          107,
+          69,
+          113,
+          70,
+          155,
+          24,
+          129,
+          115,
+          100,
+          67,
+          120,
+          83
+        ]
+      },
+      "browsingContext.getTree": {
+        "med": 1,
+        "p95": 124,
+        "min": 1,
+        "max": 124,
+        "samples": [
+          124,
+          39,
+          50,
+          22,
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "waitingForPendingNavigationsCount": 32
+  }
+}
